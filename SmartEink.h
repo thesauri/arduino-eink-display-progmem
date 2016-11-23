@@ -1,4 +1,4 @@
-/* Arduino Smart_Eink Library 
+/* Arduino Smart_Eink Library
  * Copyright (C) 2016 by NOA Labs
  * Author  Bruce Guo (NOA Labs)
  *
@@ -22,7 +22,7 @@
 
 #ifndef SmartEink_h
 #define SmartEink_h
- 
+
 #ifndef INT8U
 #define INT8U unsigned char
 #endif
@@ -37,8 +37,8 @@
 #define Eink_CS1_LOW  {DDRH |= 0x08;PORTH &=~ 0x08;}
 #define Eink_CS1_HIGH {DDRH |= 0x08;PORTH |=  0x08;}
 #define Eink_DC_LOW   {DDRE |= 0x08;PORTE &=~ 0x08;}
-#define Eink_DC_HIGH  {DDRE |= 0x08;PORTE |=  0x08;} 
- 
+#define Eink_DC_HIGH  {DDRE |= 0x08;PORTE |=  0x08;}
+
 #elif defined(__AVR_ATmega32U4__)
 
 #define Eink_CS1_LOW  {DDRD |= 0x80;PORTD &=~ 0x80;}
@@ -58,30 +58,29 @@
 class E_ink
 {
 public:
- void  InitEink(void);
- void ClearScreen(void);
- void EinkShowLogo(INT8U *image);
- void ShowBitMap(INT8U *image);
- void RefreshScreen(void);
- void GetCharMatrixData(INT16U unicodeChar);
- void ConverCharMatrixData (void);
- void DisplayChar(INT8U x1,INT8U y1,INT16U unicodeChar);
- void EinkP8x16Str(INT8U y,INT8U x,char ch[]);
+  void InitEink(void);
+  void ClearScreen(void);
+  void EinkShowLogo(INT8U *image);
+  void ShowBitMap(INT8U *image);
+  void RefreshScreen(void);
+  void GetCharMatrixData(INT16U unicodeChar);
+  void ConverCharMatrixData (void);
+  void DisplayChar(INT8U x1,INT8U y1,INT16U unicodeChar);
+  void EinkP8x16Str(INT8U y,INT8U x,char ch[]);
 private:
- INT8U matrixData[32];
- INT8U matrixDataConver[200]; 
- INT8U GetTwoByte(INT8U image);
- INT16U ConvertData(INT8U originalData); 
- void  WriteComm(INT8U command);
- void  WriteData(INT8U data); 
- void  CloseBump(void);
- void  ConfigureLUTRegister(void);
- void  SetPositionXY(INT8U Xs, INT8U Xe,INT8U Ys,INT8U Ye);
- 
+  INT8U matrixData[32];
+  INT8U matrixDataConver[200];
+  INT8U GetTwoByte(INT8U image);
+  INT16U ConvertData(INT8U originalData);
+  void WriteComm(INT8U command);
+  void WriteData(INT8U data);
+  void CloseBump(void);
+  void ConfigureLUTRegister(void);
+  void SetPositionXY(INT8U Xs, INT8U Xe,INT8U Ys,INT8U Ye);
 };
 
 #endif
 /*********************************************************************************************************
-  END FILE
-*********************************************************************************************************/
-  
+ END FILE
+ *********************************************************************************************************/
+
