@@ -7,4 +7,4 @@ When working on a project a with a [SmartPrototyping E-ink display](http://www.s
 ## Changes
 * The font used for rendering text was saved as an array in the RAM, it has been moved to the program space. Some other arrays were moved as well.
 * A 5 second delay after refreshing the screen has been removed.
-* Clearing the screen using the `ClearScreen` method now reinitializes the screen as well. The function contained the line `//InitEink();`, as a comment. Redrawing the screen without calling `InitEink()` left artifacts on the areas that were not drawn on.
+* Clearing the screen using the `ClearScreen` method now reinitializes the screen as well. The method contained the line `//InitEink();`, as a comment. Redrawing the screen without calling `InitEink()` left artifacts on the areas that were not drawn on.
