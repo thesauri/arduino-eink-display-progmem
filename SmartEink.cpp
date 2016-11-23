@@ -218,7 +218,7 @@ void E_ink::ShowBitMap(INT8U *image)
 void E_ink::ClearScreen(void)
 {
 	INT16U i;
-	//InitEink();
+	InitEink();
 	WriteComm(0x24);
 	for(i=0;i<3096;i++)
 	{
