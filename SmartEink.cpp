@@ -171,8 +171,6 @@ void E_ink::RefreshScreen(void)
 	
 	WriteComm(0x20);
 	CloseBump();
-	delay(5000);
-	
 }
 /*--------------
  Show a full picture in 3096 bytes(2 bits)
