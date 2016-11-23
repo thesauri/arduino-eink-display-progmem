@@ -1,4 +1,4 @@
-/* Arduino Smart_Eink Library 
+/* Arduino Smart_Eink Library
  * Copyright (C) 2016 by NOA Labs
  * Author  Bruce Guo (NOA Labs)
  *
@@ -22,9 +22,10 @@
 
 #include "SmartEink.h"
 #include <SPI.h>
-#include <Arduino.h> 
+#include <Arduino.h>
+#include <avr/pgmspace.h>
 
-const unsigned char F8X16[]=
+const unsigned char F8X16[] PROGMEM =
 {
 	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,// 0
 	0x00,0x00,0x00,0xF8,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x33,0x30,0x00,0x00,0x00,//!1
@@ -125,68 +126,68 @@ const unsigned char F8X16[]=
 
 
 /* -------------------------------------------------------------
-private class function, called by public fuction: clearScreen(), to init the screen;
---------------------------------------------------------------*/
+ private class function, called by public fuction: clearScreen(), to init the screen;
+ --------------------------------------------------------------*/
 void E_ink::InitEink(void) //initial code
 {
-
-  SPI.begin();
-  
-  WriteComm(0x10);//exit deep sleep mode
-  WriteData(0x00);
-  WriteComm(0x11);//data enter mode
-  WriteData(0x03);
-  WriteComm(0x44);//set RAM x address start/end, in page 36
-  WriteData(0x00);//RAM x address start at 00h;
-  WriteData(0x11);//RAM x address end at 11h(17)->72: [because 1F(31)->128 and 12(18)->76] 
-  WriteComm(0x45);//set RAM y address start/end, in page 37
-  WriteData(0x00);//RAM y address start at 00h;
-  WriteData(0xAB);//RAM y address start at ABh(171)->172: [because B3(179)->180]
-  WriteComm(0x4E);//set RAM x address count to 0;
-  WriteData(0x00);
-  WriteComm(0x4F);//set RAM y address count to 0;
-  WriteData(0x00);
-  WriteComm(0xF0);//booster feedback used, in page 37
-  WriteData(0x1F);
-  WriteComm(0x22);//display updata sequence option ,in page 33
-  WriteData(0xC0);//enable sequence: clk -> CP
-  
-  ConfigureLUTRegister();
-  
-  WriteComm(0x2C);//vcom
-  WriteData(0xA0);
-  WriteComm(0x3C);//board
-  WriteData(0x63);
-  WriteComm(0x22);//display updata sequence option ,in page 33
-  WriteData(0xC4);//enable sequence: clk -> CP -> LUT -> initial display -> pattern display
+	
+	SPI.begin();
+	
+	WriteComm(0x10);//exit deep sleep mode
+	WriteData(0x00);
+	WriteComm(0x11);//data enter mode
+	WriteData(0x03);
+	WriteComm(0x44);//set RAM x address start/end, in page 36
+	WriteData(0x00);//RAM x address start at 00h;
+	WriteData(0x11);//RAM x address end at 11h(17)->72: [because 1F(31)->128 and 12(18)->76]
+	WriteComm(0x45);//set RAM y address start/end, in page 37
+	WriteData(0x00);//RAM y address start at 00h;
+	WriteData(0xAB);//RAM y address start at ABh(171)->172: [because B3(179)->180]
+	WriteComm(0x4E);//set RAM x address count to 0;
+	WriteData(0x00);
+	WriteComm(0x4F);//set RAM y address count to 0;
+	WriteData(0x00);
+	WriteComm(0xF0);//booster feedback used, in page 37
+	WriteData(0x1F);
+	WriteComm(0x22);//display updata sequence option ,in page 33
+	WriteData(0xC0);//enable sequence: clk -> CP
+	
+	ConfigureLUTRegister();
+	
+	WriteComm(0x2C);//vcom
+	WriteData(0xA0);
+	WriteComm(0x3C);//board
+	WriteData(0x63);
+	WriteComm(0x22);//display updata sequence option ,in page 33
+	WriteData(0xC4);//enable sequence: clk -> CP -> LUT -> initial display -> pattern display
 }
 
 /*-------------
-refresh the screen, need to be called by application every time  the screen changed
---------------*/
+ refresh the screen, need to be called by application every time  the screen changed
+ --------------*/
 void E_ink::RefreshScreen(void)
 {
-
-  WriteComm(0x20);
-  CloseBump();
-  delay(5000);
-    
+	
+	WriteComm(0x20);
+	CloseBump();
+	delay(5000);
+	
 }
 /*--------------
-Show a full picture in 3096 bytes(2 bits)
-----------------*/
+ Show a full picture in 3096 bytes(2 bits)
+ ----------------*/
 void E_ink::EinkShowLogo(INT8U *image)
 {
-  int i;
-  WriteComm(0x24);
-  for(i=0;i<3096;i++)//3096,1548
-  {
-	 WriteData(image[i]);
-  }
+	int i;
+	WriteComm(0x24);
+	for(i=0;i<3096;i++)//3096,1548
+	{
+		WriteData(image[i]);
+	}
 }
 /*--------------------
-To make a 1548bytes(2 bits) picture become a 3096bytes(1 bits) picture
-----------------------*/
+ To make a 1548bytes(2 bits) picture become a 3096bytes(1 bits) picture
+ ----------------------*/
 INT8U E_ink::GetTwoByte(INT8U image)
 {
 	INT8U i0=0x01,i1=0x02,i2=0x04,i3=0x08;
@@ -194,64 +195,63 @@ INT8U E_ink::GetTwoByte(INT8U image)
 	if((image&0x01)==0x00) i0=0x00;
 	if((image&0x02)==0x00) i1=0x00;
 	if((image&0x04)==0x00) i2=0x00;
-	if((image&0x08)==0x00) i3=0x00; 
-
+	if((image&0x08)==0x00) i3=0x00;
+	
 	return ((i3<<4)|(i3<<3)|(i2<<3)|(i2<<2)|(i1<<2)|(i1<<1)|(i0<<1)|i0);
 }
 /*--------------------
-Show a 1548(2 bits) picture
------------------------*/
+ Show a 1548(2 bits) picture
+ -----------------------*/
 void E_ink::ShowBitMap(INT8U *image)
 {
-  int i;
-  WriteComm(0x24);
-  for(i=0;i<1548;i++)//3096,1548
-  {	
-  	WriteData(GetTwoByte(image[i]>>4));
-	WriteData(GetTwoByte(image[i]));
-  }
+	int i;
+	WriteComm(0x24);
+	for(i=0;i<1548;i++)//3096,1548
+	{
+		WriteData(GetTwoByte(image[i]>>4));
+		WriteData(GetTwoByte(image[i]));
+	}
 }
 
 /*-------------
-clear the original screen, need to be called before writing any data or command to screen ;
-------------*/
+ clear the original screen, need to be called before writing any data or command to screen ;
+ ------------*/
 void E_ink::ClearScreen(void)
 {
-   INT16U i;
-   //InitEink();
-   WriteComm(0x24);
-   for(i=0;i<3096;i++)
-   {
-     WriteData(0xff);
-   }
-   delay(1000); 
- }
- 
- /*
-display character in the Eink screen:
-x:the X start address,X value can be 0 to 14;
-y:the Y start  address, Y vlue can  be 171 to 7;
-the charater diplay erea is from x to x+3 in X position and from y to y-7 in Y position
-unicode_char:the character machine code
-*/
+	INT16U i;
+	//InitEink();
+	WriteComm(0x24);
+	for(i=0;i<3096;i++)
+	{
+		WriteData(0xff);
+	}
+	delay(1000);
+}
+
+/*
+ display character in the Eink screen:
+ x:the X start address,X value can be 0 to 14;
+ y:the Y start  address, Y vlue can  be 171 to 7;
+ the charater diplay erea is from x to x+3 in X position and from y to y-7 in Y position
+ unicode_char:the character machine code
+ */
 void E_ink::DisplayChar(INT8U x,INT8U y,INT16U unicodeChar)
 {
-  INT16U i;
-  GetCharMatrixData(unicodeChar);
-  ConverCharMatrixData();
-  SetPositionXY(x,x+3,y,y-7);
-  WriteComm(0x11);     /*data enter mode command */
-  WriteData(0x05);     /*set Y-mode:X address is increment and y address decrement */                       
-  WriteComm(0x24);
-  for(i=16;i<32;i++)
-  {
-      WriteData(matrixDataConver[i]);
-   }
-   for(i=0;i<16;i++)
-  {
-
-      WriteData(matrixDataConver[i]);
-  }
+	INT16U i;
+	GetCharMatrixData(unicodeChar);
+	ConverCharMatrixData();
+	SetPositionXY(x,x+3,y,y-7);
+	WriteComm(0x11);     /*data enter mode command */
+	WriteData(0x05);     /*set Y-mode:X address is increment and y address decrement */
+	WriteComm(0x24);
+	for(i=16;i<32;i++)
+	{
+		WriteData(matrixDataConver[i]);
+	}
+	for(i=0;i<16;i++)
+	{
+		WriteData(matrixDataConver[i]);
+	}
 }
 
 void E_ink::EinkP8x16Str(INT8U y,INT8U x,char ch[])
@@ -265,148 +265,147 @@ void E_ink::EinkP8x16Str(INT8U y,INT8U x,char ch[])
 			x=0;
 			y-=2;
 		}
-	     DisplayChar(y,x,c);
+		DisplayChar(y,x,c);
 		x+=8;
 		j++;
-  }
+	}
 	
 }
 
 void E_ink::GetCharMatrixData(INT16U unicodeChar)
 {
-     INT8U c=0,i=0;
- 	 c=unicodeChar-32;
-	 for(i=0;i<8;i++)
-	 {		
-		 matrixData[i+8]=~F8X16[(c<<4)+15-i];
-		
-     }
-	 for(i=0;i<8;i++)
-	 {
-     matrixData[i]=~F8X16[(c<<4)+7-i];
-     }
+	INT8U c=0,i=0;
+	c=unicodeChar-32;
+	for(i=0;i<8;i++)
+	{
+		matrixData[i+8]=~ //F8X16[(c<<4)+15-i];
+	}
+	for(i=0;i<8;i++)
+	{
+		matrixData[i]=~F8X16[(c<<4)+7-i];
+	}
 }
- 
+
 /*
-setPositionXY:
-Xs --> X start  address   0~17
-Xe --> X end    address   0~17
-Ys --> Y start  address   0~171
-Ye --> Y end    address   0~171
-*/
+ setPositionXY:
+ Xs --> X start  address   0~17
+ Xe --> X end    address   0~17
+ Ys --> Y start  address   0~171
+ Ye --> Y end    address   0~171
+ */
 void E_ink::SetPositionXY(INT8U Xs, INT8U Xe,INT8U Ys,INT8U Ye)
 {
-  WriteComm(0x44);//set RAM x address start/end  command
-  WriteData(Xs); 
-  WriteData(Xe); 
-  WriteComm(0x45);//set RAM y address start/end  command
-  WriteData(Ys); 
-  WriteData(Ye);
-  WriteComm(0x4E);//set RAM x address count to Xs;
-  WriteData(Xs);
-  WriteComm(0x4F);//set RAM y address count to Ys;
-  WriteData(Ys);
+	WriteComm(0x44);//set RAM x address start/end  command
+	WriteData(Xs);
+	WriteData(Xe);
+	WriteComm(0x45);//set RAM y address start/end  command
+	WriteData(Ys);
+	WriteData(Ye);
+	WriteComm(0x4E);//set RAM x address count to Xs;
+	WriteData(Xs);
+	WriteComm(0x4F);//set RAM y address count to Ys;
+	WriteData(Ys);
 }
 
 
 void E_ink::CloseBump(void)
 {
-  WriteComm(0x22);   
-  WriteData(0x03);
-  WriteComm(0x20);
+	WriteComm(0x22);
+	WriteData(0x03);
+	WriteComm(0x20);
 }
- 
- 
+
+
 void E_ink::WriteComm(INT8U command)
 {
-  Eink_CS1_HIGH;
-  Eink_DC_LOW;
-  Eink_CS1_LOW; 
-  SPI.transfer(command);
-  Eink_CS1_HIGH; 
+	Eink_CS1_HIGH;
+	Eink_DC_LOW;
+	Eink_CS1_LOW;
+	SPI.transfer(command);
+	Eink_CS1_HIGH;
 }
 
 void E_ink::WriteData(INT8U data)
 {
-  Eink_CS1_HIGH;
-  Eink_DC_HIGH;
-  Eink_CS1_LOW;
-  SPI.transfer(data);
-  Eink_CS1_HIGH;  
+	Eink_CS1_HIGH;
+	Eink_DC_HIGH;
+	Eink_CS1_LOW;
+	SPI.transfer(data);
+	Eink_CS1_HIGH;
 }
 
 
 
 void E_ink::ConfigureLUTRegister(void)
 {
-  INT8U i;
-  INT8U initData[]={
+	INT8U i;
+	INT8U initData[]={
   0x00,0x00,0x00,0x55,0x00,0x00,0x55,0x55,0x00,0x55,0x55,0x55,0xAA,0xAA,0xAA,0xAA,
   0x15,0x15,0x15,0x15,0x05,0x05,0x05,0x05,0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
   0x22,0xFB,0x22,0x1B,0x00,0x00,0x00,0x00,0x00,0x00,};
-  WriteComm(0x32);  //write data to LUT register
-  for(i=0;i<90;i++)
-    WriteData(initData[i]); 
-}  
+	WriteComm(0x32);  //write data to LUT register
+	for(i=0;i<90;i++)
+		WriteData(initData[i]);
+}
 
 /*convert the matrix data:
-origital_data:it is a 8 bit data
-return value:16 bit data
-for example:origital_data is 10100010,and the return data will be 11001100 00001100*/
+ origital_data:it is a 8 bit data
+ return value:16 bit data
+ for example:origital_data is 10100010,and the return data will be 11001100 00001100*/
 INT16U E_ink::ConvertData(INT8U OriginalData)
 {
-  INT8U i,j;
-  INT8U data_L,data_H;
-  INT8U temp;
-  INT16U final_data;
-  temp=OriginalData;
-  data_L=0;          /* save low  4 bit convert  result */
-  data_H=0;          /* save high 4 bit convert  result */
-  
-  /*--------- convert low 4 bit--------*/
-    for(i=0;i<4;i++)
-    {
-       if(temp&(0x01<<i))           /* judge the i bit if it is 1*/
-        data_L |= 0x03<<(2*i);      /* convert the 2*i bit and the (2*i+1??to 1 */
-       else
-        data_L  &= ~(0x03<<(2*i));  /* convert the 2*i bit and the (2*i+1??to 0 */
-    } 
-  /*------ convert high 4 bit----------*/
-    for(i=4;i< 8;i++)    
-    {
-        j=i-4;
-      if(temp &(0x01<<i)) 
-        data_H |= 0x03<<(2*j);   
-      else
-        data_H  &= ~(0x03<<(2*j));
-    } 
-  final_data =(data_H<<8)+data_L;
-   return final_data;    
- }
- 
+	INT8U i,j;
+	INT8U data_L,data_H;
+	INT8U temp;
+	INT16U final_data;
+	temp=OriginalData;
+	data_L=0;          /* save low  4 bit convert  result */
+	data_H=0;          /* save high 4 bit convert  result */
+	
+	/*--------- convert low 4 bit--------*/
+	for(i=0;i<4;i++)
+	{
+		if(temp&(0x01<<i))           /* judge the i bit if it is 1*/
+			data_L |= 0x03<<(2*i);      /* convert the 2*i bit and the (2*i+1??to 1 */
+		else
+			data_L  &= ~(0x03<<(2*i));  /* convert the 2*i bit and the (2*i+1??to 0 */
+	}
+	/*------ convert high 4 bit----------*/
+	for(i=4;i< 8;i++)
+	{
+		j=i-4;
+		if(temp &(0x01<<i))
+			data_H |= 0x03<<(2*j);
+		else
+			data_H  &= ~(0x03<<(2*j));
+	}
+	final_data =(data_H<<8)+data_L;
+	return final_data;
+}
+
 /*
-conver the character matrix data:
-convert the array  matrixdata[] data,and save convert result in array matrixdata_conver[]; 
-*/ 
+ conver the character matrix data:
+ convert the array  matrixdata[] data,and save convert result in array matrixdata_conver[];
+ */
 void E_ink::ConverCharMatrixData (void)
 {
-  INT16U tempData;
-  INT8U i,j,m;
-  INT8U temp;
-    for(i=0;i<8;i++)    //convert the first 8 byte data
-    {
-        tempData=ConvertData(matrixData[i]);
-        matrixDataConver[i]=tempData>>8;          //save data at matrixdata_conver[0]~matrixdata_conver[7]
-        matrixDataConver[i+8]=tempData;           //save data at matrixdata_conver[8]~matrixdata_conver[15]
-    }
-    for(i=8;i<16;i++)  //convert the last 8 byte data
-    {
-        tempData=ConvertData(matrixData[i]);
-        matrixDataConver[i+8]=tempData>>8;       //save data at matrixdata_conver[16]~matrixdata[23]
-        matrixDataConver[i+16]=tempData;         //save data at matrixdata_conver[24]~matrixdata_conver[31]
-    }
-
-  }
+	INT16U tempData;
+	INT8U i,j,m;
+	INT8U temp;
+	for(i=0;i<8;i++)    //convert the first 8 byte data
+	{
+		tempData=ConvertData(matrixData[i]);
+		matrixDataConver[i]=tempData>>8;          //save data at matrixdata_conver[0]~matrixdata_conver[7]
+		matrixDataConver[i+8]=tempData;           //save data at matrixdata_conver[8]~matrixdata_conver[15]
+	}
+	for(i=8;i<16;i++)  //convert the last 8 byte data
+	{
+		tempData=ConvertData(matrixData[i]);
+		matrixDataConver[i+8]=tempData>>8;       //save data at matrixdata_conver[16]~matrixdata[23]
+		matrixDataConver[i+16]=tempData;         //save data at matrixdata_conver[24]~matrixdata_conver[31]
+	}
+	
+}
