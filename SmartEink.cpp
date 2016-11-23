@@ -278,11 +278,11 @@ void E_ink::GetCharMatrixData(INT16U unicodeChar)
 	c=unicodeChar-32;
 	for(i=0;i<8;i++)
 	{
-		matrixData[i+8]=~ //F8X16[(c<<4)+15-i];
+		matrixData[i+8]=~pgm_read_byte_near(F8X16 + (c<<4)+15-i); //~F8X16[(c<<4)+15-i];
 	}
 	for(i=0;i<8;i++)
 	{
-		matrixData[i]=~F8X16[(c<<4)+7-i];
+		matrixData[i]=~pgm_read_byte_near(F8X16 + (c<<4)+7-i); //~F8X16[(c<<4)+7-i];
 	}
 }
 
