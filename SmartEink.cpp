@@ -1,6 +1,7 @@
-/* Arduino Smart_Eink Library
+/* Arduino Smart_Eink Library (modified)
  * Copyright (C) 2016 by NOA Labs
  * Author  Bruce Guo (NOA Labs)
+ * Modified to use less RAM by Walter Berggren
  *
  * This file is work for Eink.
  *
