@@ -224,7 +224,6 @@ void E_ink::ClearScreen(void)
 	{
 		WriteData(0xff);
 	}
-	delay(1000);
 }
 
 /*
