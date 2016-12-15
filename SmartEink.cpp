@@ -25,6 +25,7 @@
 #include <SPI.h>
 #include <Arduino.h>
 #include <avr/pgmspace.h>
+#include <math.h>
 
 const unsigned char F8X16[] PROGMEM =
 {
@@ -126,6 +127,8 @@ const unsigned char F8X16[] PROGMEM =
 };
 
 
+
+
 /* -------------------------------------------------------------
  private class function, called by public fuction: clearScreen(), to init the screen;
  --------------------------------------------------------------*/
@@ -209,6 +212,20 @@ void E_ink::ShowBitMap(INT8U *image)
 	{
 		WriteData(GetTwoByte(image[i]>>4));
 		WriteData(GetTwoByte(image[i]));
+	}
+}
+
+/*--------------------
+ Shows a 1548 byte picture that is stored in the program memory
+ -----------------------*/
+void E_ink::ShowBitMapFromProgmem(const INT8U *image)
+{
+	int i;
+	WriteComm(0x24);
+	for(i=0;i<1548;i++)//3096,1548
+	{
+		WriteData(GetTwoByte(pgm_read_byte_near(image + i)>>4));
+		WriteData(GetTwoByte(pgm_read_byte_near(image + i)));
 	}
 }
 

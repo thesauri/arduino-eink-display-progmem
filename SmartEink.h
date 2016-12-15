@@ -62,6 +62,7 @@ public:
   void ClearScreen(void);
   void EinkShowLogo(INT8U *image);
   void ShowBitMap(INT8U *image);
+  void ShowBitMapFromProgmem(const INT8U *image);
   void RefreshScreen(void);
   void GetCharMatrixData(INT16U unicodeChar);
   void ConverCharMatrixData (void);
